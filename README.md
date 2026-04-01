@@ -17,6 +17,52 @@ Open `http://localhost:8000` in your browser.
 
 ---
 
+## How It Works
+
+```mermaid
+flowchart TD
+    User([User downloads a ClawHub skill]) --> Inputs
+
+    subgraph Inputs["Input Methods"]
+        A[Upload files\nSKILL.md + scripts]
+        B[Upload ZIP archive]
+        C[GitHub repo URL]
+    end
+
+    A --> API
+    B --> Unzip[Extract ZIP\nto temp dir] --> API
+    C --> Fetch[Fetch via\nGitHub API] --> API
+
+    subgraph API["FastAPI Backend"]
+        direction TB
+        API1[/api/scan/upload/]
+        API2[/api/scan/zip/]
+        API3[/api/scan/github/]
+    end
+
+    API --> Scanner
+
+    subgraph Scanner["SkillScanner"]
+        direction TB
+        P1[Pass 1 — Metadata\nParse SKILL.md YAML\nCheck tools & permissions]
+        P2[Pass 2 — Code Scan\nRegex match every line\nacross all files]
+        P1 --> P2
+    end
+
+    P2 --> Findings
+
+    subgraph Findings["Findings"]
+        C1[CRITICAL\nCommand injection\nHardcoded secrets\nSQL injection\nPickle deserialization]
+        H1[HIGH\nPrompt injection\nData exfiltration\nSSRF / Path traversal]
+        M1[MEDIUM\nDangerous imports\nInsecure HTTP]
+        L1[LOW / INFO\nInsecure random\nMissing version]
+    end
+
+    Findings --> UI[Browser UI\nSeverity badges\nPer-finding details\nLine numbers + snippets]
+```
+
+---
+
 ## How to Scan a Skill
 
 Three ways to submit a skill for analysis:
