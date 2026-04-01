@@ -411,7 +411,7 @@ class SkillScanner:
         skill_name = "Uploaded Skill"
 
         for filename, content in files.items():
-            if filename == "SKILL.md":
+            if filename == "SKILL.md" or filename.endswith("/SKILL.md"):
                 metadata = self.parse_skill_metadata(content)
                 if metadata:
                     skill_name = metadata.name
